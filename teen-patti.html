@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teen Patti - Diamond Casino</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .game-bg {
+            background-image: url('https://images.pexels.com/photos/187041/pexels-photo-187041.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+        .card {
+            width: 120px;
+            height: 180px;
+            border-radius: 8px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+        }
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        .card-front {
+            background: white;
+            color: black;
+            transform: rotateY(180deg);
+        }
+        .card-back {
+            background: linear-gradient(135deg, #e63946, #a8dadc);
+        }
+        .player-area {
+            min-height: 200px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+        }
+        .bet-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #f59e0b;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Header -->
+    <header class="bg-black py-4 px-6 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-gem text-yellow-400 text-2xl"></i>
+            <h1 class="text-xl font-bold">TEEN PATTI</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-coins text-yellow-400"></i>
+                <span class="user-balance font-medium">₹0</span>
+            </div>
+            <a href="/lobby.html" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md font-medium transition">
+                <i class="fas fa-arrow-left"></i> Lobby
+            </a>
+        </div>
+    </header>
+
+    <!-- Game Area -->
+    <section class="game-bg min-h-screen py-8 px-4">
+        <div class="max-w-6xl mx-auto">
+            <!-- Game Table -->
+            <div class="bg-black bg-opacity-70 rounded-xl p-6 mb-8">
+                <div class="flex justify-center space-x-4 mb-8">
+                    <!-- Dealer Cards -->
+                    <div class="flex space-x-2">
+                        <div class="card">
+                            <div class="card-front">🂡</div>
+                            <div class="card-back"></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-front">🂭</div>
+                            <div class="card-back"></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-front">🃑</div>
+                            <div class="card-back"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Player Area -->
+                <div class="player-area p-6 flex flex-col items-center justify-center">
+                    <div class="flex space-x-2 mb-6">
+                        <!-- Player Cards -->
+                        <div class="card">
+                            <div class="card-front">🂡</div>
+                            <div class="card-back"></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-front">🂭</div>
+                            <div class="card-back"></div>
+                        </div>
+                        <div class="card">
+                            <div class="card-front">🃑</div>
+                            <div class="card-back"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bet Controls -->
+                    <div class="w-full max-w-md space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="font-medium">Bet Amount: ₹<span id="betAmount">100</span></span>
+                            <span class="text-sm text-gray-400">Min: ₹100 | Max: ₹10,000</span>
+                        </div>
+                        <input type="range" id="betSlider" min="100" max="10000" step="100" value="100" 
+                            class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer bet-slider">
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <button id="placeBetBtn" class="py-3 px-6 bg-yellow-500 hover:bg-yellow-600 rounded-md font-bold text-lg transition">
+                                Place Bet (₹100)
+                            </button>
+                            <button id="foldBtn" class="py-3 px-6 bg-red-500 hover:bg-red-600 rounded-md font-bold text-lg transition">
+                                Fold
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Game Info -->
+            <div class="bg-black bg-opacity-70 rounded-xl p-6">
+                <h3 class="text-xl font-bold mb-4">Game Rules</h3>
+                <ul class="list-disc pl-5 space-y-2 text-gray-300">
+                    <li>Each player is dealt 3 cards face down</li>
+                    <li>Betting occurs in rounds with options to bet, call, or fold</li>
+                    <li>Highest hand wins the pot (Trail > Pure Sequence > Sequence > Color > Pair > High Card)</li>
+                    <li>Minimum bet: ₹100 | Maximum bet: ₹10,000</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Result Modal (Hidden by default) -->
+    <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden">
+        <div class="bg-gray-800 rounded-xl p-8 max-w-md text-center">
+            <h3 class="text-2xl font-bold mb-4" id="resultTitle">You Won!</h3>
+            <p class="text-xl mb-6" id="resultMessage">You won ₹500 with a Trail (Three of a Kind)!</p>
+            <div class="flex space-x-4 justify-center">
+                <button id="playAgainBtn" class="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 rounded-md font-bold transition">
+                    Play Again
+                </button>
+                <button id="backToLobbyBtn" class="px-6 py-3 bg-gray-600 hover:bg-gray-500 rounded-md font-bold transition">
+                    Back to Lobby
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Game variables
+        let currentBet = 100;
+        let gameState = 'waiting'; // waiting, betting, results
+        
+        // DOM elements
+        const betSlider = document.getElementById('betSlider');
+        const betAmountDisplay = document.getElementById('betAmount');
+        const placeBetBtn = document.getElementById('placeBetBtn');
+        const foldBtn = document.getElementById('foldBtn');
+        const resultModal = document.getElementById('resultModal');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const backToLobbyBtn = document.getElementById('backToLobbyBtn');
+        const cards = document.querySelectorAll('.card');
+        
+        // Initialize game
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update bet amount display when slider changes
+            betSlider.addEventListener('input', function() {
+                currentBet = parseInt(this.value);
+                betAmountDisplay.textContent = currentBet;
+                placeBetBtn.textContent = `Place Bet (₹${currentBet})`;
+            });
+            
+            // Handle place bet button
+            placeBetBtn.addEventListener('click', async function() {
+                if (currentUser.balance < currentBet) {
+                    showNotification('Insufficient balance', 'error');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/teen-patti/bet`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        },
+                        body: JSON.stringify({ amount: currentBet })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // Update UI
+                        currentUser.balance = data.newBalance;
+                        updateUIForLoggedInUser();
+                        
+                        // Start game
+                        startGame();
+                    } else {
+                        showNotification(data.message || 'Bet failed', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Network error. Please try again.', 'error');
+                    console.error('Bet error:', error);
+                }
+            });
+            
+            // Handle fold button
+            foldBtn.addEventListener('click', function() {
+                showNotification('You folded this round', 'info');
+                // TODO: Implement fold logic
+            });
+            
+            // Handle play again button
+            playAgainBtn.addEventListener('click', function() {
+                resultModal.classList.add('hidden');
+                resetGame();
+            });
+            
+            // Handle back to lobby button
+            backToLobbyBtn.addEventListener('click', function() {
+                window.location.href = '/lobby.html';
+            });
+            
+            // Flip cards on click (for demo purposes)
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.classList.toggle('flipped');
+                });
+            });
+        });
+        
+        function startGame() {
+            gameState = 'betting';
+            // TODO: Implement game logic
+            showNotification('Game started! Good luck!', 'success');
+        }
+        
+        function showResult(win, amount, handType) {
+            const resultTitle = document.getElementById('resultTitle');
+            const resultMessage = document.getElementById('resultMessage');
+            
+            if (win) {
+                resultTitle.textContent = 'You Won!';
+                resultMessage.textContent = `You won ₹${amount} with a ${handType}!`;
+            } else {
+                resultTitle.textContent = 'You Lost';
+                resultMessage.textContent = `You lost ₹${amount}. Better luck next time!`;
+            }
+            
+            resultModal.classList.remove('hidden');
+            gameState = 'results';
+        }
+        
+        function resetGame() {
+            // Reset game state
+            gameState = 'waiting';
+            currentBet = 100;
+            betSlider.value = 100;
+            betAmountDisplay.textContent = '100';
+            placeBetBtn.textContent = 'Place Bet (₹100)';
+            
+            // Reset cards
+            cards.forEach(card => {
+                card.classList.remove('flipped');
+            });
+        }
+    </script>
+</body>
+</html>
